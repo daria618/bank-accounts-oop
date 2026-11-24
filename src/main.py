@@ -1,6 +1,6 @@
 from models import BankAccount
-from exceptions import InvalidOperationError, InsufficientFundsError
-
+from exceptions import InvalidOperationError, InsufficientFundsError, AccountFrozenError, AccountClosedError
+from enums import AccountStatus
 
 c1 = BankAccount("Leon", 100)
 
@@ -15,7 +15,6 @@ print("--- Сценарий: успешные операции ---")
 c1.deposit(19990)
 c1.withdraw(1000)
 print(c1.get_account_info())
-# пополни счёт, сними часть, выведи get_account_info()
 
 print("--- Сценарий: пополнение на отрицательную сумму ---")
 try:
@@ -40,3 +39,28 @@ try:
     bad = BankAccount("Dasha", -2000)
 except InvalidOperationError as e:
     print(f"Ошибка: {e}")
+
+print("--- Сценарий: создать замороженный счёт и попробовать пополнить ---")
+try:
+    c_frozen = BankAccount("Dasha", 2000, status=AccountStatus.FROZEN)
+    c_frozen.deposit(1000)
+except AccountFrozenError as e:
+    print(f"Ошибка: {e}")
+    
+print("--- Сценарий: закрыть → попробовать снять → AccountClosedError ---")
+try:
+    c_closed = BankAccount("Dasha")
+    c_closed.close()
+    c_closed.withdraw(100)
+except AccountClosedError as e:
+    print(f"Ошибка: {e}")
+    
+print("--- Сценарий: разморозить → успешная операция ---")
+try:
+    c_active = BankAccount("Dasha", 2000)
+    c_active.freeze()
+    c_active.unfreeze()
+    c_active.deposit(1000000)
+except AccountFrozenError as e:
+    print(f"Ошибка: {e}")
+print(c_active.get_account_info())

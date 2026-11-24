@@ -3,16 +3,15 @@ class AccountError(Exception):
 
 
 class AccountFrozenError(AccountError):
-    pass
+    """Некорректная операция: счет заморожен."""
 
 
 class AccountClosedError(AccountError):
-    pass
+    """Некорректная операция: счет закрыт."""
 
 
 class InvalidOperationError(AccountError):
     """Некорректная операция: неверная сумма или тип данных."""
-    
     
 class InsufficientFundsError(AccountError):
     """На балансе недостаточно средств для снятия."""
