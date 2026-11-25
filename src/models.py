@@ -2,60 +2,70 @@ from exceptions import InvalidOperationError, InsufficientFundsError, AccountFro
 from enums import AccountStatus
 class BankAccount:
     def __init__(self, owner, balance=0, status=AccountStatus.ACTIVE): 
-        if isinstance(balance, bool) or not isinstance(balance, (int,float)):
-            raise InvalidOperationError(f"Сумма должна быть числом, получено: {balance!r}")     
+        self._validate_number(balance)     
         if  balance < 0:
             raise InvalidOperationError(f"Начальный баланс не может быть отрицательным")
         if not isinstance(status, AccountStatus):
             raise  InvalidOperationError(f"Некорректный статус счета: {status}")
         self.owner = owner 
-        self.balance = balance 
-        self.status = status
+        self._balance = balance 
+        self._status = status
+        
+    @property                          
+    def balance(self):                
+        return self._balance   
     
+    @property                          
+    def status(self):                
+        return self._status
+
     def deposit(self, amount): 
         self._check_status() 
         self._validate_amount(amount)
-        self.balance += amount 
-        
+        self._balance += amount 
+         
     def withdraw(self, amount):
         self._check_status()
         self._validate_amount(amount)
-        if self.balance < amount:
-            raise InsufficientFundsError(f"Недостаточно средств: баланс {self.balance}, запрошено {amount}")
-        self.balance -= amount  
+        if self._balance < amount:
+            raise InsufficientFundsError(f"Недостаточно средств: баланс {self._balance}, запрошено {amount}")
+        self._balance -= amount  
     
     def get_account_info(self):
-        return f"Статус счета: {self.status.value}, владелец: {self.owner}, баланс: {self.balance}"
+        return f"Статус счета: {self._status.value}, владелец: {self.owner}, баланс: {self._balance}"
     
     def freeze(self):
-        if self.status is AccountStatus.CLOSED:
+        if self._status is AccountStatus.CLOSED:
             raise AccountClosedError("Нельзя заморозить закрытый счёт")
-        if self.status is AccountStatus.FROZEN:
+        if self._status is AccountStatus.FROZEN:
             raise AccountFrozenError("Счет уже заморожен")
-        self.status = AccountStatus.FROZEN
+        self._status = AccountStatus.FROZEN
         
     def unfreeze(self):
-        if self.status is AccountStatus.CLOSED:
+        if self._status is AccountStatus.CLOSED:
             raise AccountClosedError("Нельзя разморозить закрытый счёт")
-        if self.status is not AccountStatus.FROZEN:
-            raise InvalidOperationError(f"Счёт не заморожен, текущий статус: {self.status.value}")
-        self.status = AccountStatus.ACTIVE
+        if self._status is not AccountStatus.FROZEN:
+            raise AccountFrozenError(f"Счёт не заморожен, текущий статус: {self._status.value}")
+        self._status = AccountStatus.ACTIVE
         
     def close(self):
-        if self.status is AccountStatus.CLOSED:
+        if self._status is AccountStatus.CLOSED:
             raise AccountClosedError("Счёт уже закрыт")
-        if self.balance > 0:
-            raise InvalidOperationError(f"Перед закрытием счета необходимо снять оставшиеся деньги: {self.balance}")
-        self.status = AccountStatus.CLOSED
+        if self._balance > 0:
+            raise InvalidOperationError(f"Перед закрытием счета необходимо снять оставшиеся деньги: {self._balance}")
+        self._status = AccountStatus.CLOSED
+    
+    def _validate_number(self, value):
+       if isinstance(value, bool) or not isinstance(value, (int,float)):
+           raise InvalidOperationError(f"Введенное значение должно быть числом, получено: {value!r}") 
     
     def _check_status(self):
-        if self.status is AccountStatus.FROZEN:
-            raise AccountFrozenError(f'Статус счёта:{self.status.value}. Обратитесь к админиcтратору')
-        if self.status is AccountStatus.CLOSED:
-            raise AccountClosedError(f'Статус счёта:{self.status.value}. Счет закрыт, операции над ним невозможны')
+        if self._status is AccountStatus.FROZEN:
+            raise AccountFrozenError(f'Статус счёта:{self._status.value}. Обратитесь к администратору')
+        if self._status is AccountStatus.CLOSED:
+            raise AccountClosedError(f'Статус счёта:{self._status.value}. Счет закрыт, операции над ним невозможны')
         
     def _validate_amount(self, amount):
-        if isinstance(amount, bool) or not isinstance(amount, (int,float)):
-            raise InvalidOperationError(f"Сумма должна быть числом, получено: {amount!r}")
+        self._validate_number(amount)
         if amount <= 0:                      
             raise InvalidOperationError(f"Сумма должна быть больше нуля, получено: {amount}")

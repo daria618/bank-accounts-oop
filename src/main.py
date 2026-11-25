@@ -64,3 +64,11 @@ try:
 except AccountFrozenError as e:
     print(f"Ошибка: {e}")
 print(c_active.get_account_info())
+
+print("--- Сценарий: попытка изменить баланс напрямую ---")
+c_invalid = BankAccount("Dasha", 2000)
+try:
+    c_invalid.balance = 1_000_000
+except AttributeError as e:
+    print("Используйте правильный метод для изменения баланса")
+print(c_invalid.get_account_info())

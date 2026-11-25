@@ -15,3 +15,4 @@ class InvalidOperationError(AccountError):
     
 class InsufficientFundsError(AccountError):
     """На балансе недостаточно средств для снятия."""
+    
