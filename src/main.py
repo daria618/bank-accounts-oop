@@ -1,4 +1,4 @@
-from models import BankAccount
+from models import BankAccount, AbstractAccount
 from exceptions import InvalidOperationError, InsufficientFundsError, AccountFrozenError, AccountClosedError
 from enums import AccountStatus
 
@@ -72,3 +72,9 @@ try:
 except AttributeError as e:
     print("Используйте правильный метод для изменения баланса")
 print(c_invalid.get_account_info())
+
+print("--- Сценарий: попытка создать AbstractAccount ---")
+try:
+    c = AbstractAccount("Test")
+except TypeError as e:
+    print(e)
