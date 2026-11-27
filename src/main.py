@@ -2,6 +2,38 @@ from models import BankAccount, AbstractAccount
 from exceptions import InvalidOperationError, InsufficientFundsError, AccountFrozenError, AccountClosedError
 from enums import AccountStatus, Currency
 
+print("=" * 60)
+print("ДЕМОНСТРАЦИЯ ПО ЗАДАНИЮ")
+print("=" * 60)
+
+# 1. Создание активного и замороженного счёта
+active = BankAccount("Дарья", 1000, currency=Currency.RUB)
+frozen = BankAccount("Иван", 500, status=AccountStatus.FROZEN, currency=Currency.USD)
+
+print("\n--- Созданные счета ---")
+print(active)
+print(frozen)
+print("repr:", repr(active))
+
+# 2. Попытка операций над замороженным счётом
+print("\n--- Операции над замороженным счётом ---")
+for operation, amount in [("deposit", 100), ("withdraw", 50)]:
+    try:
+        getattr(frozen, operation)(amount)
+    except AccountFrozenError as e:
+        print(f"{operation}({amount}) → Ошибка: {e}")
+
+# 3. Валидное пополнение и снятие
+print("\n--- Валидные операции на активном счёте ---")
+active.deposit(500)
+print("После пополнения на 500:", active)
+active.withdraw(300)
+print("После снятия 300:     ", active)
+
+print("\n" + "=" * 60)
+print("ДОПОЛНИТЕЛЬНЫЕ СЦЕНАРИИ")
+print("=" * 60)
+
 c1 = BankAccount("Leon", 100)
 
 print("--- Сценарий: снять больше, чем есть на счёте ---")

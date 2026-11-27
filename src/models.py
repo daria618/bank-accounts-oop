@@ -85,7 +85,13 @@ class BankAccount(AbstractAccount):
             raise InvalidOperationError(f"Невозможно открытие счета в данной валюте: {currency}")
         super().__init__(owner, account_id=account_id, balance=balance, status=status)
         self._currency = currency
-        
+    
+    def __str__(self):
+        return f"{type(self).__name__} | клиент: {self.owner} | счёт: ****{self.account_id[-4:]} | статус: {self.status.value} | баланс: {self.balance} {self.currency.value}"
+    
+    def __repr__(self):
+        return f"{type(self).__name__}(owner={self.owner!r}, balance={self.balance!r}, account_id={self.account_id!r}, status={self.status!r}, currency={self.currency!r})"
+    
     @property 
     def currency(self):
         return self._currency
@@ -103,5 +109,4 @@ class BankAccount(AbstractAccount):
         self._balance -= amount  
     
     def get_account_info(self):
-        return f"ID счета {self._account_id},статус счета: {self._status.value}, владелец: {self.owner}, баланс: {self._balance} {self._currency.value}"
-    
+        return str(self)

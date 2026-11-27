@@ -1,5 +1,5 @@
 class AccountError(Exception):
-    pass
+    """Базовое исключение для всех ошибок счёта."""
 
 
 class AccountFrozenError(AccountError):
