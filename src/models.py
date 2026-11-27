@@ -1,9 +1,10 @@
 from exceptions import InvalidOperationError, InsufficientFundsError, AccountFrozenError, AccountClosedError
-from enums import AccountStatus
+from enums import AccountStatus, Currency
 from abc import ABC, abstractmethod
+import uuid
 
 class AbstractAccount(ABC):
-    def __init__(self, owner, balance=0, status=AccountStatus.ACTIVE): 
+    def __init__(self, owner, account_id, balance=0, status=AccountStatus.ACTIVE): 
         self._validate_number(balance)     
         if  balance < 0:
             raise InvalidOperationError(f"Начальный баланс не может быть отрицательным")
@@ -12,6 +13,7 @@ class AbstractAccount(ABC):
         self.owner = owner 
         self._balance = balance 
         self._status = status
+        self._account_id = account_id
             
     @property                          
     def balance(self):                
@@ -20,6 +22,10 @@ class AbstractAccount(ABC):
     @property                          
     def status(self):                
         return self._status
+    
+    @property 
+    def account_id(self):
+        return self._account_id
     
     def freeze(self):
         if self._status is AccountStatus.CLOSED:
@@ -69,7 +75,21 @@ class AbstractAccount(ABC):
     def get_account_info(self):
         """Метод для получения необходимой информации по счету"""
         
+        
 class BankAccount(AbstractAccount):
+    def __init__(self, owner, balance=0, status=AccountStatus.ACTIVE, account_id=None, currency=Currency.RUB):    
+        if account_id is None:                      
+            account_id = uuid.uuid4().hex[:8]
+        
+        if not isinstance(currency, Currency):
+            raise InvalidOperationError(f"Невозможно открытие счета в данной валюте: {currency}")
+        super().__init__(owner, account_id=account_id, balance=balance, status=status)
+        self._currency = currency
+        
+    @property 
+    def currency(self):
+        return self._currency
+        
     def deposit(self, amount): 
         self._check_status() 
         self._validate_amount(amount)
@@ -83,6 +103,5 @@ class BankAccount(AbstractAccount):
         self._balance -= amount  
     
     def get_account_info(self):
-        return f"Статус счета: {self._status.value}, владелец: {self.owner}, баланс: {self._balance}"
-    
+        return f"ID счета {self._account_id},статус счета: {self._status.value}, владелец: {self.owner}, баланс: {self._balance} {self._currency.value}"
     

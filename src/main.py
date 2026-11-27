@@ -1,6 +1,6 @@
 from models import BankAccount, AbstractAccount
 from exceptions import InvalidOperationError, InsufficientFundsError, AccountFrozenError, AccountClosedError
-from enums import AccountStatus
+from enums import AccountStatus, Currency
 
 c1 = BankAccount("Leon", 100)
 
@@ -78,3 +78,18 @@ try:
     c = AbstractAccount("Test")
 except TypeError as e:
     print(e)
+
+print("--- Сценарий: проверка генерации account_id ---")
+acc1 = BankAccount("Tom", 1000, currency=Currency.RUB)
+acc1b = BankAccount("TomB", 1000, currency=Currency.RUB)
+print(acc1.account_id != acc1b.account_id)
+
+print("--- Сценарий: счёт с явным account_id='ACC-0001' ---")
+acc2 = BankAccount("Tom", 1600,  account_id='ACC-0001', currency=Currency.USD)
+print(acc2.get_account_info())
+
+print("--- Сценарий: неверная валюта: currency='USD' ---")
+try:
+    acc3 = BankAccount("Tortm", 1600, currency='USD')
+except InvalidOperationError as e:
+    print("Неверно введена Валюта счета")
